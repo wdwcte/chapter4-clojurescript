@@ -1,4 +1,6 @@
-(ns guestbook.core)
-(-> (.getElementById js/document "content")
-    (.-innerHTML)
-    (set! "Hello, World!"))
+(ns guestbook.core
+  (:require [reagent.core :as r]))
+
+(r/render
+ [:h1 "Hello, Reagent"]
+ (.getElementById js/document "content"))

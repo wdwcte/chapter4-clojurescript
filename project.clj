@@ -29,7 +29,8 @@
                  [ring/ring-core "1.7.1"]
                  [ring/ring-defaults "0.3.2"]
                  [selmer "1.12.11"]
-                 [org.clojure/clojurescript "1.10.238" :scope "provided"]]
+                 [org.clojure/clojurescript "1.10.238" :scope "provided"]
+                 [reagent "0.8.1"]]
 
   :min-lein-version "2.0.0"
 
