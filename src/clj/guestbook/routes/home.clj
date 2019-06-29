@@ -27,14 +27,15 @@
   ;; :message "message must contain at least 10 characters"}
   (first (st/validate params message-schema)))
 
-(defn save-message! [{:keys [params]}] ;; `params` is {:message "foo" :name 1}
-  (if-let [errors (validate-message params)] ;; `errors`: {:name "must be a string",:message "message must contain at least 10 characters"}
-    (-> (response/found "/") ;; {:status 302, :headers {"Location" "/"}, :body ""}
-        (assoc :flash (assoc params :errors errors))) ;;  {:name 1, :message "foo", :errors {:name "must be a string", :message "message must contain at least 10 characters"}}}
-
-    (do
+(defn save-message! [{:keys [params]}]
+  (if-let [errors (validate-message params)]
+    (response/bad-request {:errors errors})
+    (try
       (db/save-message! params)
-      (response/found "/"))))
+      (response/ok {:status :ok})
+      (catch Exception e
+        (response/internal-server-error
+         {:errors {:server-error ["Failed to save message!"]}})))))
 
 (defn about-page [request]
   (layout/render request "about.html"))
