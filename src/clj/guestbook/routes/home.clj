@@ -5,7 +5,8 @@
     [clojure.java.io :as io]
     [guestbook.middleware :as middleware]
     [ring.util.http-response :as response]
-    [struct.core :as st]))
+    [struct.core :as st]
+    [guestbook.validation :refer [validate-message]]))
 
 (defn home-page [{:keys [flash] :as request}]
   (layout/render
@@ -14,18 +15,6 @@
    (merge
     {:messages (db/get-messages)}
     (select-keys flash [:name :message :errors]))))
-
-(def message-schema
-  [[:name st/required st/string]
-   [:message st/required st/string
-    {:message "message must contain at least 10 characters"
-     :validate (fn [msg] (>= (count msg) 10))}]])
-
-(defn validate-message [params]
-  ;; guestbook.routes.home> (validate-message {:name 1 :message "foo"})
-  ;; {:name "must be a string",
-  ;; :message "message must contain at least 10 characters"}
-  (first (st/validate params message-schema)))
 
 (defn save-message! [{:keys [params]}]
   (if-let [errors (validate-message params)]
