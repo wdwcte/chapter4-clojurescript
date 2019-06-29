@@ -1,5 +1,12 @@
 (ns guestbook.core
-  (:require [reagent.core :as r]))
+  (:require [reagent.core :as r]
+            [ajax.core :refer [GET POST]]))
+
+(defn send-message! [fields]
+  (POST "/message"
+        {:params @fields
+         :handler #(.log js/console (str "response:" %))
+         :error-handler #(.error js/console (str "error:" %))}))
 
 (defn message-form []
   (let [fields (r/atom {})]
@@ -20,6 +27,7 @@
           :on-change #(swap! fields assoc :message (-> % .-target .-value))}]]
        [:input.button.is-primary
         {:type :submit
+         :on-click #(send-message! fields)
          :value "comment"}]
        ;; We can see the atom being updated when we type in one of the fields:
        ;; [:p "Name: " (:name @fields)]
