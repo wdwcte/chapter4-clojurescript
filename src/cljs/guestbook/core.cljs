@@ -1,6 +1,7 @@
 (ns guestbook.core
   (:require [reagent.core :as r]
-            [ajax.core :refer [GET POST]]))
+            [ajax.core :refer [GET POST]]
+            [clojure.string :as string]))
 
 (defn send-message! [fields errors]
   (POST "/message"
@@ -20,7 +21,8 @@
     [:div.notification.is-danger (string/join error)]))
 
 (defn message-form []
-  (let [fields (r/atom {})]
+  (let [fields (r/atom {})
+        errors (r/atom {})]
     (fn []
       [:div
        [errors-component errors :server-error]
