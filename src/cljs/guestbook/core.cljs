@@ -4,7 +4,7 @@
             [clojure.string :as string]
             [guestbook.validation :refer [validate-message]]))
 
-(defn send-message! [fields errors]
+(defn send-message! [fields errors messages]
   (if-let [validation-errors (validate-message @fields)]
     (reset! errors validation-errors)
     (POST "/message"
@@ -13,7 +13,7 @@
                      "x-csrf-token" (.-value (.getElementById js/document "token"))}
            :params @fields
            :handler #(do
-                       (.log js/console (str "response:" %))
+                       (swap! messages conj (assoc @fields :timestamp (js/Date.)))
                        (reset! fields nil)
                        (reset! errors nil))
            :error-handler #(do
@@ -24,7 +24,7 @@
   (when-let [error (id @errors)]
     [:div.notification.is-danger (string/join error)]))
 
-(defn message-form []
+(defn message-form [messages]
   (let [fields (r/atom {})
         errors (r/atom {})]
     (fn []
@@ -47,7 +47,7 @@
           :on-change #(swap! fields assoc :message (-> % .-target .-value))}]]
        [:input.button.is-primary
         {:type :submit
-         :on-click #(send-message! fields errors)
+         :on-click #(send-message! fields errors messages)
          :value "comment"}]
        ;; We can see the atom being updated when we type in one of the fields:
        ;; [:p "Name: " (:name @fields)]
@@ -77,7 +77,7 @@
         [:h3 "Messages"]
         [message-list messages]]
        [:div.columns>div.column
-        [message-form]]])))
+        [message-form messages]]])))
 
 (r/render
  (home)
