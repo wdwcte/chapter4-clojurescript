@@ -14,6 +14,7 @@
            :params @fields
            :handler #(do
                        (.log js/console (str "response:" %))
+                       (reset! fields nil)
                        (reset! errors nil))
            :error-handler #(do
                              (.log js/console (str %))
